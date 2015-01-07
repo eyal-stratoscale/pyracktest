@@ -46,14 +46,14 @@ class LogBeamPlugin:
                 sources, 'None' if under is None else "'%s'" % under),
             takeSitePackages=True)
 
-    def postMortem(self):
-        self._postMortemCommands()
+    def postMortem(self, *extraCommands):
+        self._postMortemCommands(*extraCommands)
         self.postMortemSerial()
 
-    def _postMortemCommands(self):
+    def _postMortemCommands(self, *extraCommands):
         script = "\n".join(
             "%s < /dev/null >& /tmp/postmortem/%s" % (command, self._safeFilename(command))
-            for command in POST_MORTEM_COMMANDS)
+            for command in POST_MORTEM_COMMANDS + list(extraCommands))
         self._host.ssh.run.script('mkdir /tmp/postmortem\n%s\n' % script)
         self.beam("/tmp/postmortem", under="postmortem")
 
